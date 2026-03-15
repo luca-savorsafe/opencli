@@ -9,7 +9,7 @@
 [![Node.js Version](https://img.shields.io/node/v/@jackwener/opencli?style=flat-square)](https://nodejs.org)
 [![License](https://img.shields.io/npm/l/@jackwener/opencli?style=flat-square)](./LICENSE)
 
-OpenCLI 通过 Chrome 浏览器 + [Playwright MCP Bridge](https://github.com/nichochar/playwright-mcp) 扩展，将任何网站变成命令行工具。不存密码、不泄 token，直接复用浏览器已登录状态。
+OpenCLI 通过 Chrome 浏览器 + [Playwright MCP Bridge](https://github.com/nichochar/playwright-mcp) 扩展，将任何网站变成命令行工具。57个内置命令。不存密码、不泄 token，直接复用浏览器已登录状态。
 
 ---
 
@@ -29,7 +29,7 @@ OpenCLI 通过 Chrome 浏览器 + [Playwright MCP Bridge](https://github.com/nic
 
 ## 亮点
 
-- **47 个命令，17 个站点** — B站、知乎、小红书、Twitter、Reddit、雪球(xueqiu)、GitHub、V2EX、Hacker News、BBC、微博、BOSS直聘、Yahoo Finance、路透社、什么值得买、携程、YouTube
+- **57 个命令，17 个站点** — B站、知乎、小红书、Twitter、Reddit、雪球(xueqiu)、GitHub、V2EX、Hacker News、BBC、微博、BOSS直聘、Yahoo Finance、路透社、什么值得买、携程、YouTube
 - **零风控** — 复用 Chrome 登录态，无需存储任何凭证
 - **AI 原生** — `explore` 自动发现 API，`synthesize` 生成适配器，`cascade` 探测认证策略
 - **动态加载引擎** — 声明式的 `.yaml` 或者底层定制的 `.ts` 适配器，放入 `clis/` 文件夹即可自动注册生效
@@ -126,7 +126,7 @@ npm install -g @jackwener/opencli@latest
 | **zhihu** | `hot` `search` `question` | 🔐 浏览器 |
 | **xiaohongshu** | `search` `notifications` `feed` `me` `user` | 🔐 浏览器 |
 | **xueqiu** | `feed` `hot-stock` `hot` `search` `stock` `watchlist` | 🔐 浏览器 |
-| **twitter** | `trending` `bookmarks` `profile` `search` `timeline` | 🔐 浏览器 |
+| **twitter** | `trending` `bookmarks` `profile` `search` `timeline` `following` `followers` `notifications` `post` `reply` `delete` `like` | 🔐 浏览器 |
 | **reddit** | `hot` `frontpage` `search` `subreddit` | 🔐 浏览器 |
 | **weibo** | `hot` | 🔐 浏览器 |
 | **boss** | `search` | 🔐 浏览器 |
