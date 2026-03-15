@@ -67,7 +67,22 @@ export class Page implements IPage {
   }
 
   async evaluate(js: string): Promise<any> {
-    return this.call('tools/call', { name: 'browser_evaluate', arguments: { function: js } });
+    // Normalize IIFE format to function format expected by MCP browser_evaluate
+    const normalized = this.normalizeEval(js);
+    return this.call('tools/call', { name: 'browser_evaluate', arguments: { function: normalized } });
+  }
+
+  private normalizeEval(source: string): string {
+    const s = source.trim();
+    if (!s) return '() => undefined';
+    // IIFE: (async () => {...})()  →  wrap as () => (...)
+    if (s.startsWith('(') && s.endsWith(')()')) return `() => (${s})`;
+    // Already a function/arrow
+    if (/^(async\s+)?\([^)]*\)\s*=>/.test(s)) return s;
+    if (/^(async\s+)?[A-Za-z_][A-Za-z0-9_]*\s*=>/.test(s)) return s;
+    if (s.startsWith('function ') || s.startsWith('async function ')) return s;
+    // Raw expression → wrap
+    return `() => (${s})`;
   }
 
   async snapshot(opts: { interactive?: boolean; compact?: boolean; maxDepth?: number; raw?: boolean } = {}): Promise<any> {

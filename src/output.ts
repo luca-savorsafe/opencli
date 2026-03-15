@@ -1,9 +1,10 @@
 /**
- * Output formatting: table, JSON, Markdown, CSV.
+ * Output formatting: table, JSON, Markdown, CSV, YAML.
  */
 
 import chalk from 'chalk';
 import Table from 'cli-table3';
+import yaml from 'js-yaml';
 
 export interface RenderOptions {
   fmt?: string;
@@ -23,6 +24,7 @@ export function render(data: any, opts: RenderOptions = {}): void {
     case 'json': renderJson(data); break;
     case 'md': case 'markdown': renderMarkdown(data, opts); break;
     case 'csv': renderCsv(data, opts); break;
+    case 'yaml': case 'yml': renderYaml(data); break;
     default: renderTable(data, opts); break;
   }
 }
@@ -32,16 +34,14 @@ function renderTable(data: any, opts: RenderOptions): void {
   if (!rows.length) { console.log(chalk.dim('(no data)')); return; }
   const columns = opts.columns ?? Object.keys(rows[0]);
 
-  const header = columns.map((c, i) => i === 0 ? '#' : capitalize(c));
+  const header = columns.map(c => capitalize(c));
   const table = new Table({
     head: header.map(h => chalk.bold(h)),
     style: { head: [], border: [] },
     wordWrap: true,
     wrapOnWordBoundary: true,
-    colWidths: columns.map((c, i) => {
-      if (i === 0) return 4;
-      if (c === 'url' || c === 'description') return null as any;
-      if (c === 'title' || c === 'name' || c === 'repo') return null as any;
+    colWidths: columns.map((_c, i) => {
+      if (i === 0) return 6;
       return null as any;
     }).filter(() => true),
   });
@@ -89,6 +89,10 @@ function renderCsv(data: any, opts: RenderOptions): void {
       return v.includes(',') || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v;
     }).join(','));
   }
+}
+
+function renderYaml(data: any): void {
+  console.log(yaml.dump(data, { sortKeys: false, lineWidth: 120, noRefs: true }));
 }
 
 function capitalize(s: string): string {

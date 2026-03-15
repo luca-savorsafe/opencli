@@ -57,6 +57,24 @@ describe('evalExpr', () => {
   it('resolves simple path', () => {
     expect(evalExpr('item.title', { item: { title: 'Test' } })).toBe('Test');
   });
+  it('applies join filter', () => {
+    expect(evalExpr('item.tags | join(,)', { item: { tags: ['a', 'b', 'c'] } })).toBe('a,b,c');
+  });
+  it('applies upper filter', () => {
+    expect(evalExpr('item.name | upper', { item: { name: 'hello' } })).toBe('HELLO');
+  });
+  it('applies lower filter', () => {
+    expect(evalExpr('item.name | lower', { item: { name: 'HELLO' } })).toBe('hello');
+  });
+  it('applies truncate filter', () => {
+    expect(evalExpr('item.text | truncate(5)', { item: { text: 'Hello World!' } })).toBe('Hello...');
+  });
+  it('chains filters', () => {
+    expect(evalExpr('item.name | upper | truncate(3)', { item: { name: 'hello' } })).toBe('HEL...');
+  });
+  it('applies length filter', () => {
+    expect(evalExpr('item.items | length', { item: { items: [1, 2, 3] } })).toBe(3);
+  });
 });
 
 describe('render', () => {
