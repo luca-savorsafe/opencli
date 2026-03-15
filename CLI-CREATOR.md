@@ -3,6 +3,94 @@
 > 本文档教你（或 AI Agent）如何为 OpenCLI 添加一个新网站的命令。  
 > 从零到发布，覆盖 API 发现、方案选择、适配器编写、测试验证全流程。
 
+---
+
+## ⚠️ AI Agent 开发者必读：用 Playwright MCP Bridge 探索
+
+> [!CAUTION]
+> **你（AI Agent）必须通过 Playwright MCP Bridge 打开浏览器去访问目标网站！**  
+> 不要只靠 `opencli explore` 命令或静态分析来发现 API。  
+> 你拥有 Playwright MCP 工具，必须主动用它们浏览网页、观察网络请求、模拟用户交互。
+
+### 为什么？
+
+很多 API 是**懒加载**的（用户必须点击某个按钮/标签才会触发网络请求）。字幕、评论、关注列表等深层数据不会在页面首次加载时出现在 Network 面板中。**如果你不主动去浏览和交互页面，你永远发现不了这些 API。**
+
+### AI Agent 探索工作流（必须遵循）
+
+```
+ Step 0: 用 Playwright MCP 打开浏览器
+   ↓
+ Step 1: 导航到目标页面，观察页面结构
+   ↓
+ Step 2: 查看 Network 请求（browser_network_requests）
+   ↓
+ Step 3: 模拟用户交互（点击按钮/标签/展开评论）
+   ↓
+ Step 4: 再次查看 Network，发现新触发的 API
+   ↓
+ Step 5: 分析 API 的请求参数、响应结构、鉴权方式
+   ↓
+ Step 6: 编写适配器代码
+```
+
+### 具体操作步骤
+
+**Step 0: 打开浏览器**
+```
+工具: browser_navigate
+URL: https://www.bilibili.com/video/BV1xxxxx
+```
+
+**Step 1: 获取页面快照，了解页面结构**
+```
+工具: browser_snapshot
+→ 观察页面上有哪些可交互元素（按钮、标签、链接）
+```
+
+**Step 2: 查看已有的网络请求**
+```
+工具: browser_network_requests
+→ 筛选出 JSON API 端点（忽略静态资源）
+→ 记录 URL pattern、请求头、响应结构
+```
+
+**Step 3: 模拟用户交互发现深层 API**
+```
+工具: browser_click (点击"字幕"按钮、"评论"标签、"关注"链接等)
+工具: browser_wait_for (等待数据加载)
+```
+
+**Step 4: 再次抓包，发现新 API**
+```
+工具: browser_network_requests
+→ 对比 Step 2，找出新触发的 API 端点
+```
+
+**Step 5: 用 evaluate 测试 API 可行性**
+```
+工具: browser_evaluate
+代码: async () => {
+  const res = await fetch('https://api.bilibili.com/x/player/wbi/v2?bvid=BV1xxx&cid=123', 
+    { credentials: 'include' });
+  return await res.json();
+}
+→ 验证返回的数据结构和字段
+→ 如果返回空/403：检查是否需要签名（Wbi）或特殊 Header
+```
+
+### 常犯错误
+
+| ❌ 错误做法 | ✅ 正确做法 |
+|------------|------------|
+| 只用 `opencli explore` 命令，等结果自动出来 | 用 MCP Bridge 打开浏览器，主动浏览页面 |
+| 直接在代码里 `fetch(url)`，不看浏览器实际请求 | 先在浏览器中确认 API 可用，再写代码 |
+| 页面打开后直接抓包，期望所有 API 都出现 | 模拟点击交互（展开评论/切换标签/加载更多） |
+| 遇到 HTTP 200 但空数据就放弃 | 检查是否需要 Wbi 签名或 Cookie 鉴权 |
+| 完全依赖 `__INITIAL_STATE__` 拿所有数据 | `__INITIAL_STATE__` 只有首屏数据，深层数据要调 API |
+
+---
+
 ## 核心流程
 
 ```
