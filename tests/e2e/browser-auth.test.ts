@@ -63,6 +63,10 @@ describe('login-required commands — graceful failure', () => {
     await expectGracefulAuthFailure(['xueqiu', 'watchlist', '-f', 'json']);
   }, 60_000);
 
+  it('xueqiu comments fails gracefully without login', async () => {
+    await expectGracefulAuthFailure(['xueqiu', 'comments', 'SH600519', '--limit', '3', '-f', 'json'], 'xueqiu comments');
+  }, 60_000);
+
   // ── linux-do (requires login — all endpoints need authentication) ──
   it('linux-do feed fails gracefully without login', async () => {
     await expectGracefulAuthFailure(['linux-do', 'feed', '--limit', '3', '-f', 'json']);
